@@ -1,0 +1,12 @@
+{
+  "name": "client-automation",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node-red --port $PORT"
+  },
+  "dependencies": {
+    "node-red": "*",
+    "node-red-node-email": "*",
+    "node-red-contrib-google-sheets": "*"
+  }
+}
