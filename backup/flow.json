@@ -1,0 +1,236 @@
+[
+    {
+        "id": "5afc46dd1ce4e26c",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "94b067bb6bb62a70",
+        "type": "http in",
+        "z": "5afc46dd1ce4e26c",
+        "name": "Prismwebsite",
+        "url": "/webhook/website",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 180,
+        "wires": [
+            [
+                "86cde41cdcbce6e3"
+            ]
+        ]
+    },
+    {
+        "id": "86cde41cdcbce6e3",
+        "type": "function",
+        "z": "5afc46dd1ce4e26c",
+        "name": "function 1",
+        "func": "msg.payload = {\n  timestamp: new Date().toISOString(),\n  source: \"website\",\n  contact: msg.req.body.email || msg.req.body.phone || \"unknown\",\n  message: msg.req.body.message || JSON.stringify(msg.req.body),\n  category: \"lead\"\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 180,
+        "wires": [
+            [
+                "519c8202486a5098"
+            ]
+        ]
+    },
+    {
+        "id": "519c8202486a5098",
+        "type": "GSheet",
+        "z": "5afc46dd1ce4e26c",
+        "creds": "",
+        "method": "",
+        "action": "",
+        "sheet": "",
+        "cells": "",
+        "name": "",
+        "x": 680,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dc56d2f82db01899",
+        "type": "e-mail in",
+        "z": "5afc46dd1ce4e26c",
+        "name": "",
+        "protocol": "IMAP",
+        "server": "imap.gmail.com",
+        "useSSL": true,
+        "autotls": "never",
+        "port": "993",
+        "authtype": "BASIC",
+        "saslformat": true,
+        "token": "oauth2Response.access_token",
+        "box": "INBOX",
+        "disposition": "Read",
+        "criteria": "UNSEEN",
+        "repeat": "300",
+        "fetch": "auto",
+        "inputs": 0,
+        "x": 110,
+        "y": 120,
+        "wires": [
+            [
+                "14380f81daa85ef4"
+            ]
+        ]
+    },
+    {
+        "id": "14380f81daa85ef4",
+        "type": "function",
+        "z": "5afc46dd1ce4e26c",
+        "name": "Format Gmail",
+        "func": "msg.payload = {\n  timestamp: new Date().toISOString(),\n  source: \"gmail\",\n  contact: msg.from || \"unknown\",\n  message: msg.payload || msg.subject || \"no content\",\n  category: \"email\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 120,
+        "wires": [
+            [
+                "519c8202486a5098"
+            ]
+        ]
+    },
+    {
+        "id": "fe6d367a89d92cdb",
+        "type": "http in",
+        "z": "5afc46dd1ce4e26c",
+        "name": "whatsapp",
+        "url": "/webhook/whatsapp",
+        "method": "get",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 120,
+        "y": 240,
+        "wires": [
+            [
+                "0b84d92bda3d3d9a"
+            ]
+        ]
+    },
+    {
+        "id": "0b84d92bda3d3d9a",
+        "type": "function",
+        "z": "5afc46dd1ce4e26c",
+        "name": "Verify Webhook",
+        "func": "// Handle Meta verification challenge\nif (msg.req.method === 'GET') {\n    const mode = msg.req.query['hub.mode'];\n    const token = msg.req.query['hub.verify_token'];\n    const challenge = msg.req.query['hub.challenge'];\n    \n    if (mode === 'subscribe' && token === 'mysecrettoken123') {\n        msg.res = { statusCode: 200, headers: { 'Content-Type': 'text/plain' }, body: challenge };\n        return msg;\n    } else {\n        msg.res = { statusCode: 403, body: \"Forbidden\" };\n        return msg;\n    }\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3dd597d512ef186d",
+        "type": "http in",
+        "z": "5afc46dd1ce4e26c",
+        "name": "",
+        "url": "/webhook/whatsapp",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 170,
+        "y": 300,
+        "wires": [
+            [
+                "3c6e2c9465d45bea"
+            ]
+        ]
+    },
+    {
+        "id": "3c6e2c9465d45bea",
+        "type": "function",
+        "z": "5afc46dd1ce4e26c",
+        "name": "Parse WhatsApp Message",
+        "func": "// Only process POST messages\nif (msg.req.method !== 'POST') return null;\n\nconst body = msg.req.body;\nif (!body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0]) return null;\n\nconst value = body.entry[0].changes[0].value;\nconst message = value.messages[0];\nif (message.type !== \"text\") return null;\n\nmsg.payload = {\n  timestamp: new Date().toISOString(),\n  source: \"whatsapp\",\n  contact: value.contacts?.[0]?.wa_id || \"unknown\",\n  message: message.text.body,\n  category: \"message\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 300,
+        "wires": [
+            [
+                "519c8202486a5098"
+            ]
+        ]
+    },
+    {
+        "id": "c240e398192bdbb3",
+        "type": "http in",
+        "z": "5afc46dd1ce4e26c",
+        "name": "",
+        "url": "/upload/social",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 360,
+        "wires": [
+            [
+                "279ccdedd2c52270"
+            ]
+        ]
+    },
+    {
+        "id": "279ccdedd2c52270",
+        "type": "csv",
+        "z": "5afc46dd1ce4e26c",
+        "name": "Parse Social Media CSV",
+        "spec": "rfc",
+        "sep": ",",
+        "hdrin": true,
+        "hdrout": "none",
+        "multi": "one",
+        "ret": "\\r\\n",
+        "temp": "",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": "",
+        "include_null_values": "",
+        "x": 410,
+        "y": 360,
+        "wires": [
+            [
+                "519c8202486a5098"
+            ]
+        ]
+    },
+    {
+        "id": "54d8371027e16402",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-google-sheets": "1.1.2",
+            "node-red-node-email": "5.0.0"
+        }
+    }
+]
