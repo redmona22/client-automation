@@ -41,50 +41,7 @@
         "y": 180,
         "wires": [
             [
-                "519c8202486a5098"
-            ]
-        ]
-    },
-    {
-        "id": "519c8202486a5098",
-        "type": "GSheet",
-        "z": "5afc46dd1ce4e26c",
-        "creds": "",
-        "method": "",
-        "action": "",
-        "sheet": "",
-        "cells": "",
-        "name": "",
-        "x": 680,
-        "y": 180,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "dc56d2f82db01899",
-        "type": "e-mail in",
-        "z": "5afc46dd1ce4e26c",
-        "name": "",
-        "protocol": "IMAP",
-        "server": "imap.gmail.com",
-        "useSSL": true,
-        "autotls": "never",
-        "port": "993",
-        "authtype": "BASIC",
-        "saslformat": true,
-        "token": "oauth2Response.access_token",
-        "box": "INBOX",
-        "disposition": "Read",
-        "criteria": "UNSEEN",
-        "repeat": "300",
-        "fetch": "auto",
-        "inputs": 0,
-        "x": 110,
-        "y": 120,
-        "wires": [
-            [
-                "14380f81daa85ef4"
+                "cbfbd413adbee999"
             ]
         ]
     },
@@ -104,7 +61,7 @@
         "y": 120,
         "wires": [
             [
-                "519c8202486a5098"
+                "cbfbd413adbee999"
             ]
         ]
     },
@@ -178,7 +135,7 @@
         "y": 300,
         "wires": [
             [
-                "519c8202486a5098"
+                "cbfbd413adbee999"
             ]
         ]
     },
@@ -220,17 +177,60 @@
         "y": 360,
         "wires": [
             [
-                "519c8202486a5098"
+                "cbfbd413adbee999"
             ]
         ]
     },
     {
-        "id": "54d8371027e16402",
+        "id": "9ddb79cd33d0ff06",
+        "type": "e-mail in",
+        "z": "5afc46dd1ce4e26c",
+        "name": "Mail",
+        "protocol": "IMAP",
+        "server": "imap.gmail.com",
+        "useSSL": true,
+        "autotls": "never",
+        "port": "993",
+        "authtype": "BASIC",
+        "saslformat": true,
+        "token": "oauth2Response.access_token",
+        "box": "INBOX",
+        "disposition": "Read",
+        "criteria": "UNSEEN",
+        "repeat": "300",
+        "fetch": "trigger",
+        "inputs": 1,
+        "x": 110,
+        "y": 120,
+        "wires": [
+            [
+                "14380f81daa85ef4"
+            ]
+        ]
+    },
+    {
+        "id": "cbfbd413adbee999",
+        "type": "GSheet",
+        "z": "5afc46dd1ce4e26c",
+        "creds": "",
+        "method": "",
+        "action": "",
+        "sheet": "",
+        "cells": "",
+        "name": "",
+        "x": 680,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "36fc16b71b5cf7b1",
         "type": "global-config",
         "env": [],
         "modules": {
-            "node-red-contrib-google-sheets": "1.1.2",
-            "node-red-node-email": "5.0.0"
+            "node-red-node-email": "5.0.0",
+            "node-red-contrib-google-sheets": "1.1.2"
         }
     }
 ]
