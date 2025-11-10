@@ -17,7 +17,7 @@
         "upload": false,
         "skipBodyParsing": false,
         "swaggerDoc": "",
-        "x": 130,
+        "x": 110,
         "y": 180,
         "wires": [
             [
@@ -66,42 +66,6 @@
         ]
     },
     {
-        "id": "fe6d367a89d92cdb",
-        "type": "http in",
-        "z": "5afc46dd1ce4e26c",
-        "name": "whatsapp",
-        "url": "/webhook/whatsapp",
-        "method": "get",
-        "upload": false,
-        "skipBodyParsing": false,
-        "swaggerDoc": "",
-        "x": 120,
-        "y": 240,
-        "wires": [
-            [
-                "0b84d92bda3d3d9a"
-            ]
-        ]
-    },
-    {
-        "id": "0b84d92bda3d3d9a",
-        "type": "function",
-        "z": "5afc46dd1ce4e26c",
-        "name": "Verify Webhook",
-        "func": "// Handle Meta verification challenge\nif (msg.req.method === 'GET') {\n    const mode = msg.req.query['hub.mode'];\n    const token = msg.req.query['hub.verify_token'];\n    const challenge = msg.req.query['hub.challenge'];\n    \n    if (mode === 'subscribe' && token === 'mysecrettoken123') {\n        msg.res = { statusCode: 200, headers: { 'Content-Type': 'text/plain' }, body: challenge };\n        return msg;\n    } else {\n        msg.res = { statusCode: 403, body: \"Forbidden\" };\n        return msg;\n    }\n}\nreturn null;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 320,
-        "y": 240,
-        "wires": [
-            []
-        ]
-    },
-    {
         "id": "3dd597d512ef186d",
         "type": "http in",
         "z": "5afc46dd1ce4e26c",
@@ -111,8 +75,8 @@
         "upload": false,
         "skipBodyParsing": false,
         "swaggerDoc": "",
-        "x": 170,
-        "y": 300,
+        "x": 150,
+        "y": 240,
         "wires": [
             [
                 "3c6e2c9465d45bea"
@@ -124,15 +88,15 @@
         "type": "function",
         "z": "5afc46dd1ce4e26c",
         "name": "Parse WhatsApp Message",
-        "func": "// Only process POST messages\nif (msg.req.method !== 'POST') return null;\n\nconst body = msg.req.body;\nif (!body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0]) return null;\n\nconst value = body.entry[0].changes[0].value;\nconst message = value.messages[0];\nif (message.type !== \"text\") return null;\n\nmsg.payload = {\n  timestamp: new Date().toISOString(),\n  source: \"whatsapp\",\n  contact: value.contacts?.[0]?.wa_id || \"unknown\",\n  message: message.text.body,\n  category: \"message\"\n};\nreturn msg;",
+        "func": "// Only process POST messages\nif (msg.req.method !== 'POST') {\n  return null;\n}\n\nconst body = msg.req.body;\n\n// Extract phone number (remove @c.us)\nlet from = body.from || '';\nif (typeof from === 'string') {\n  from = from.replace(/@c\\.us$/, '').replace(/^\\+?/, '');\n}\n\n// Build clean payload for logging\nmsg.payload = {\n  timestamp: new Date().toISOString(),\n  source: 'wa-bridge',\n  contact: from,\n  message: body.body || '',\n  category: 'message'\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 440,
-        "y": 300,
+        "x": 400,
+        "y": 240,
         "wires": [
             [
                 "cbfbd413adbee999"
@@ -149,8 +113,8 @@
         "upload": false,
         "skipBodyParsing": false,
         "swaggerDoc": "",
-        "x": 150,
-        "y": 360,
+        "x": 130,
+        "y": 300,
         "wires": [
             [
                 "279ccdedd2c52270"
@@ -173,8 +137,8 @@
         "strings": true,
         "include_empty_strings": "",
         "include_null_values": "",
-        "x": 410,
-        "y": 360,
+        "x": 390,
+        "y": 300,
         "wires": [
             [
                 "cbfbd413adbee999"
@@ -193,14 +157,14 @@
         "port": "993",
         "authtype": "BASIC",
         "saslformat": true,
-        "token": "oauth2Response.access_token",
-        "box": "INBOX",
+        "token": "",
+        "box": "Inbox",
         "disposition": "Read",
         "criteria": "UNSEEN",
         "repeat": "300",
         "fetch": "trigger",
         "inputs": 1,
-        "x": 110,
+        "x": 90,
         "y": 120,
         "wires": [
             [
@@ -212,20 +176,26 @@
         "id": "cbfbd413adbee999",
         "type": "GSheet",
         "z": "5afc46dd1ce4e26c",
-        "creds": "",
-        "method": "",
+        "creds": "fc1607b9223216d1",
+        "method": "append",
         "action": "",
-        "sheet": "",
-        "cells": "",
-        "name": "",
-        "x": 680,
-        "y": 200,
+        "sheet": "1KcBEoMHMYESAbVzyBo1xOrBEZWG9uglf5ONJyvXCNpQ",
+        "cells": "Sheet1!A1:B2",
+        "flatten": false,
+        "name": "prismdatacentre",
+        "x": 700,
+        "y": 180,
         "wires": [
             []
         ]
     },
     {
-        "id": "36fc16b71b5cf7b1",
+        "id": "fc1607b9223216d1",
+        "type": "gauth",
+        "name": "node-red-gsheets@node-red-prism-media.iam.gserviceaccount.com"
+    },
+    {
+        "id": "096affebf8b5be96",
         "type": "global-config",
         "env": [],
         "modules": {
